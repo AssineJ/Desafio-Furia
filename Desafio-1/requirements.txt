@@ -1,0 +1,6 @@
+# server/requirements.txt
+flask
+python-dotenv
+requests
+transformers
+torch
