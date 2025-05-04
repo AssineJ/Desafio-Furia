@@ -7,63 +7,83 @@ import re
 import logging
 import json
 
-# Configuração básica de logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Regex para detectar termos relacionados a CS:GO
-cs_regex = re.compile(
-    r'\b(cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia)\b',
+# Expressões regulares para identificar consultas relacionadas à FURIA e CS
+furia_regex = re.compile(
+    r'\b(furia|furiagg|furiabet|kscerato|yuurih|art|saffee|chelo|fallen|honda|guerri|tacitus|brazil|cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia|major|blast|esl|iem)\b',
     re.IGNORECASE
 )
 
-# URL da API do Hugging Face
 HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-# Prompt do sistema para o bot
 SYSTEM_PROMPT = """<|system|>
-Você é o SargeBot, assistente especialista em Counter-Strike. Siga estas regras:
+Você é um assistente especialista sobre a equipe FURIA Esports de Counter-Strike. Siga estas regras:
+
 1. Português brasileiro claro e objetivo
-2. Tom militar humorístico (ex: "Recruta!", "Soldado!")
+2. Tom entusiasmado de fã, usando gírias e termos do cenário competitivo
 3. 2-3 parágrafos curtos com quebras de linha
 4. Use **negrito** apenas para termos técnicos importantes
-5. Máximo 2 emojis por resposta
-6. Formatação proibida: markdown, parênteses complexos
-7. Sempre expanda siglas na primeira menção (ex: "CS (Counter-Strike)")
-8. Respostas devem ser informativas e úteis 
+5. Máximo 2-4 emojis por resposta (preferencialmente relacionados à FURIA: 🐯🖤💛)
+6. Formatação proibida: markdown excessivo, parênteses complexos
+7. Sempre priorize informações sobre a FURIA Esports
 
+INFORMAÇÕES SOBRE A FURIA ESPORTS:
+- Fundada em 2017 por Jaime "guru" Pádua e André "gordo" Akkari
+- Conhecida como "Pantera Negra" ou "Os Panteras"
+- Cores: Preto e Dourado
+- Sede: São Paulo, Brasil
+- Website: furiagg.com
 
-- Use 2-4 emojis relevantes por resposta
-- Exemplos de combinações:
-  Armas: 🔫💣
-  Mapas: 🗺️📍
-  Estratégias: 🧠🎯
-  Vitórias: 🏆✨
-  Erros: 💥🚨
-- Mantenha a profissionalidade militar
+ROSTER ATUAL DE CS2 (2025):
+- Andrei "arT" Piovezan - Capitão/Entry Fragger/IGL
+- Kaike "KSCERATO" Cerato - Rifler/Estrela do time
+- Yuri "yuurih" Santos - Rifler/Clutcher
+- Rafael "saffee" Costa - AWPer principal
+- Gabriel "FalleN" Toledo - Rifler/AWPer secundário/Veterano
+- André "chelo" Naspolini - Rifler (reserva)
+- Nicholas "guerri" Nogueira - Treinador
 
-Exemplo ruim: "Counter Strike (*CS** pra os íntimos)"
-Exemplo correto: "Counter-Strike (CS para os íntimos)"
+CONQUISTAS RECENTES (2022-2025):
+- Campeão BLAST Premier Fall 2024
+- Top 4 Major Copenhagen 2024
+- Campeão ESL Pro League Season 19
+- Vice-campeão IEM Katowice 2024
+- Campeão BLAST Premier World Final 2023
+- Top 6 Mundial HLTV 2023 e 2024
+
+FATOS INTERESSANTES:
+- arT é conhecido por seu estilo agressivo como IGL
+- KSCERATO é considerado um dos melhores riflers do mundo
+- yuurih tem uma das melhores taxas de clutch do cenário
+- FalleN é uma lenda do CS brasileiro que se juntou à FURIA em 2024
+- A FURIA tem uma das maiores torcidas do Brasil no cenário de esports
+
+DADOS DO TIME:
+- Mapas fortes: Nuke, Ancient, Vertigo
+- Mapas de ban frequentes: Mirage, Dust2
+- Mapa signature: Vertigo (conhecido como "Vertigo da FURIA")
+- Pontos fortes: Agressividade, adaptação mid-round, trabalho em equipe
+- Rivalidades: NAVI, Vitality, Imperial (clássico brasileiro)
+
+Responda perguntas sobre CS2 em geral também, mas sempre relacione ao contexto da FURIA quando possível.
 </s>
 """
 
 def clean_response(text):
     """Limpa formatações indesejadas da resposta do modelo"""
-    # Verificação de segurança para texto nulo ou não string
     if not text or not isinstance(text, str):
         return "Não foi possível gerar uma resposta válida. Tente novamente."
         
-    # Remove texto antes de <|assistant|> se presente
     if "<|assistant|>" in text:
         text = text.split("<|assistant|>")[-1]
     
-    # Remove tags e outros elementos de formatação
     replacements = {
         "**": "",       
         "*": "",       
@@ -82,11 +102,9 @@ def clean_response(text):
 def chat():
     """Endpoint para processar mensagens de chat"""
     try:
-        # Obtém a chave API do cabeçalho
         user_key = request.headers.get('X-API-Key')
         data = request.get_json()
         
-        # Validação básica
         if not user_key or not user_key.startswith('hf_'):
             logger.warning("Tentativa de acesso com chave API inválida")
             return jsonify({"response": "🔒 Chave API inválida! Por favor, recarregue a página e insira uma chave válida."}), 401
@@ -94,10 +112,8 @@ def chat():
         user_message = data.get('message', '')
         logger.info(f"Mensagem recebida: {user_message[:30]}...")
         
-        # Gera o prompt completo
         full_prompt = f"{SYSTEM_PROMPT}<|user|>\n{user_message}</s>\n<|assistant|>\n"
         
-        # Faz a requisição para o modelo
         try:
             response = requests.post(
                 HF_API_URL,
@@ -115,13 +131,11 @@ def chat():
                 timeout=30
             )
             
-            # Verifica a resposta da API
             if response.status_code == 200:
                 try:
                     response_json = response.json()
                     logger.debug(f"Resposta bruta da HF: {str(response_json)[:200]}...")
                     
-                    # Tratamento melhorado para diferentes formatos de resposta
                     raw_text = ""
                     if isinstance(response_json, list) and len(response_json) > 0:
                         if isinstance(response_json[0], dict):
@@ -140,7 +154,6 @@ def chat():
                     
                 except json.JSONDecodeError as e:
                     logger.error(f"Erro ao decodificar JSON: {str(e)}")
-                    # Tenta usar o texto bruto da resposta se não for JSON válido
                     try:
                         raw_text = response.text
                         if raw_text:
@@ -157,7 +170,6 @@ def chat():
                 error_msg = f"Erro na API Hugging Face: Código {response.status_code}"
                 logger.error(error_msg)
                 
-                # Tenta ler detalhes do erro
                 error_details = ""
                 try:
                     error_data = response.json()
@@ -166,7 +178,6 @@ def chat():
                 except:
                     pass
                 
-                # Tratamento específico para erros comuns
                 if response.status_code == 401:
                     return jsonify({"response": "🔑 Chave API inválida ou sem permissões! Verifique se sua chave possui acesso Read."}), 401
                 elif response.status_code == 503:
@@ -203,14 +214,12 @@ def validate_key():
             
         user_key = data['apiKey']
         if len(user_key) >= 6:
-            logger.debug(f"Chave recebida: {user_key[:6]}...")  # Log parcial por segurança
-        
-        # Primeira validação: formato básico
+            logger.debug(f"Chave recebida: {user_key[:6]}...")  
+
         if not user_key.startswith('hf_'):
             logger.error("Formato de chave inválido")
             return jsonify({"valid": False, "error": "Formato inválido (deve começar com hf_)"}), 400
 
-        # Segunda validação: endpoint de status da HF
         try:
             response = requests.get(
                 'https://huggingface.co/api/whoami-v2',
@@ -243,10 +252,6 @@ def validate_key():
 def health_check():
     """Endpoint de verificação de saúde do servidor"""
     return jsonify({"status": "online", "version": "1.2.1"}), 200
-
-def showChatInterface():
-    """Função auxiliar para mostrar a interface de chat"""
-    pass
 
 if __name__ == '__main__':
     logger.info("Iniciando servidor Flask...")
