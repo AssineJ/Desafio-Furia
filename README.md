@@ -1,42 +1,66 @@
 # Desafio-Furia
 
-#CS Assistente
-Um assistente virtual para Counter-Strike usando inteligência artificial que responde suas perguntas sobre o jogo em português brasileiro.
-O que é o CS Assistente?
-O CS Assistente é um chatbot que utiliza inteligência artificial para responder suas perguntas sobre Counter-Strike. O assistente tem personalidade de sargento militar e responde com humor e conhecimento técnico sobre mapas, armas, estratégias e muito mais!
+### O que é o CS Assistente?
 
-#Recursos Principais
+Um assistente virtual para **Counter-Strike** usando inteligência artificial que responde suas perguntas sobre o jogo em português brasileiro.
 
-🎮 Respostas em português brasileiro com tom militar humorístico
-🔫 Conhecimento sobre mapas, armas, estratégias e mecânicas do jogo
-🧠 Powered by Hugging Face (Mixtral-8x7B-Instruct)
-🌐 Interface web amigável e responsiva
+### 💻 Pré-requisitos
 
-#Como Configurar e Usar
-Seguindo este passo a passo, você conseguirá executar o CS Assistente no seu computador, mesmo sem conhecimentos técnicos avançados.
+>[!IMPORTANT]
+>Antes de começar, verifique se você atendeu aos seguintes requisitos:
+>- Python 3.8+ instalado (necessário para o backend)
+>- Node.js e npm (opcional - apenas se quiser modificar o frontend)
+>- Uma conexão de internet ativa
+>- Navegador web moderno (Chrome, Firefox, Edge, Safari)
+>- Sistemas compatíveis: Windows, macOS e Linux
 
-##Pré-requisitos
-Você precisará ter instalado:
+### 🚀 Instalando CS Assistente
 
-Python (versão 3.8 ou superior): o "motor" que executa o código
+Para instalar o **CS Assistente**, siga estas etapas:
 
-Baixe aqui
-Durante a instalação, marque a opção "Add Python to PATH"
+1. Clone este repositório:
+```
+git clone https://github.com/AssineJ/csgo-assistente.git
+cd csgo-assistente
+```
+2.Instale as dependências Python:
+```
+pip install -r requirements.txt
+```
 
+O frontend é composto de arquivos estáticos HTML/CSS/JS que não precisam de instalação adicional, apenas do servidor rodando.
 
-Git (opcional): para baixar os arquivos do projeto
+### ☕ Usando CS Assistente
 
-Baixe aqui
-Ou simplesmente baixe os arquivos como ZIP
+Para iniciar o assistente, siga estas etapas:
 
+1. Inicie o servidor backend:
+```
+cd server
+python app.py
+```
+2. Abra o arquivo `client/index.html` no seu navegador ou crie um servidor local para servir os arquivos estáticos.
+> [!TIP]
+> Utilize a extenxão `Go Live` no Visua Studio Code
 
-Navegador web moderno: Chrome, Firefox, Edge, etc.
-Conta no Hugging Face: para obter uma chave API gratuita
+3. **Obtenha uma chave de API** gratuita do **Hugging Face**:
+- Acesse [Hugging Face Tokens](https://huggingface.co/settings/tokens)
+- Crie uma conta gratuita (se ainda não tiver uma)
+- Gere um token com permissão **Read**
+- Cole a chave no formulário de login do assistente
+4. Comece a fazer perguntas sobre Counter-Strike!
 
-#Criar conta
+### Exemplos de perguntas:
 
-Passo 1: Obter os arquivos do projeto
-Opção A - Usando Git:
+- "Quais são as melhores posições para AWP no mapa Dust 2?"
+- "Como funciona a economia do CS?"
+- "Quais são as melhores granadas para retake no Mirage?"
+- "Dicas para melhorar minha precisão com rifles"
 
-Abra o prompt de comando/terminal
-Execute:
+### 🔧 Resolução de problemas
+> [!WARNING]
+> Se você encontrar problemas ao executar o servidor:
+> - Verifique se a porta 5000 está disponível
+> - Certifique-se de que o firewall permite conexões na porta 5000
+> - Verifique sua conexão com a internet
+> - Teste o servidor com `curl http://localhost:5000/api/health`
