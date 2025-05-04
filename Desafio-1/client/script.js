@@ -182,4 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> 43eca185ff679b4261273b7c5de71a1990fd6383
