@@ -182,3 +182,4 @@ document.addEventListener('DOMContentLoaded', () => {
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 });
+
