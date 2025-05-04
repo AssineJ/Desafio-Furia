@@ -7,26 +7,21 @@ import re
 import logging
 import json
 
-# Configuração básica de logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Carrega variáveis de ambiente
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-# Regex para detectar termos relacionados a CS:GO
 cs_regex = re.compile(
     r'\b(cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia)\b',
     re.IGNORECASE
 )
 
-# URL da API do Hugging Face
 HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 
-# Prompt do sistema para o bot
 SYSTEM_PROMPT = """<|system|>
 Você é o SargeBot, assistente especialista em Counter-Strike. Siga estas regras:
 1. Português brasileiro claro e objetivo
@@ -55,15 +50,12 @@ Exemplo correto: "Counter-Strike (CS para os íntimos)"
 
 def clean_response(text):
     """Limpa formatações indesejadas da resposta do modelo"""
-    # Verificação de segurança para texto nulo ou não string
     if not text or not isinstance(text, str):
         return "Não foi possível gerar uma resposta válida. Tente novamente."
         
-    # Remove texto antes de <|assistant|> se presente
     if "<|assistant|>" in text:
         text = text.split("<|assistant|>")[-1]
     
-    # Remove tags e outros elementos de formatação
     replacements = {
         "**": "",       
         "*": "",       
@@ -82,11 +74,9 @@ def clean_response(text):
 def chat():
     """Endpoint para processar mensagens de chat"""
     try:
-        # Obtém a chave API do cabeçalho
         user_key = request.headers.get('X-API-Key')
         data = request.get_json()
         
-        # Validação básica
         if not user_key or not user_key.startswith('hf_'):
             logger.warning("Tentativa de acesso com chave API inválida")
             return jsonify({"response": "🔒 Chave API inválida! Por favor, recarregue a página e insira uma chave válida."}), 401
@@ -94,10 +84,8 @@ def chat():
         user_message = data.get('message', '')
         logger.info(f"Mensagem recebida: {user_message[:30]}...")
         
-        # Gera o prompt completo
         full_prompt = f"{SYSTEM_PROMPT}<|user|>\n{user_message}</s>\n<|assistant|>\n"
         
-        # Faz a requisição para o modelo
         try:
             response = requests.post(
                 HF_API_URL,
@@ -115,13 +103,11 @@ def chat():
                 timeout=30
             )
             
-            # Verifica a resposta da API
             if response.status_code == 200:
                 try:
                     response_json = response.json()
                     logger.debug(f"Resposta bruta da HF: {str(response_json)[:200]}...")
                     
-                    # Tratamento melhorado para diferentes formatos de resposta
                     raw_text = ""
                     if isinstance(response_json, list) and len(response_json) > 0:
                         if isinstance(response_json[0], dict):
@@ -140,7 +126,6 @@ def chat():
                     
                 except json.JSONDecodeError as e:
                     logger.error(f"Erro ao decodificar JSON: {str(e)}")
-                    # Tenta usar o texto bruto da resposta se não for JSON válido
                     try:
                         raw_text = response.text
                         if raw_text:
@@ -157,7 +142,6 @@ def chat():
                 error_msg = f"Erro na API Hugging Face: Código {response.status_code}"
                 logger.error(error_msg)
                 
-                # Tenta ler detalhes do erro
                 error_details = ""
                 try:
                     error_data = response.json()
@@ -166,7 +150,6 @@ def chat():
                 except:
                     pass
                 
-                # Tratamento específico para erros comuns
                 if response.status_code == 401:
                     return jsonify({"response": "🔑 Chave API inválida ou sem permissões! Verifique se sua chave possui acesso Read."}), 401
                 elif response.status_code == 503:
@@ -203,14 +186,12 @@ def validate_key():
             
         user_key = data['apiKey']
         if len(user_key) >= 6:
-            logger.debug(f"Chave recebida: {user_key[:6]}...")  # Log parcial por segurança
-        
-        # Primeira validação: formato básico
+            logger.debug(f"Chave recebida: {user_key[:6]}...")  
+
         if not user_key.startswith('hf_'):
             logger.error("Formato de chave inválido")
             return jsonify({"valid": False, "error": "Formato inválido (deve começar com hf_)"}), 400
 
-        # Segunda validação: endpoint de status da HF
         try:
             response = requests.get(
                 'https://huggingface.co/api/whoami-v2',
