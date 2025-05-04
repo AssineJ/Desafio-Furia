@@ -34,8 +34,6 @@ body::before {
     background-repeat: no-repeat;
     opacity: 0.2;
     z-index: -1;
-
-    
 }
 
 .container {

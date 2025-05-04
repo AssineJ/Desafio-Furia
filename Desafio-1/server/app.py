@@ -15,14 +15,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-<<<<<<< HEAD
 # Expressões regulares para identificar consultas relacionadas à FURIA e CS
 furia_regex = re.compile(
     r'\b(furia|furiagg|furiabet|kscerato|yuurih|art|saffee|chelo|fallen|honda|guerri|tacitus|brazil|cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia|major|blast|esl|iem)\b',
-=======
-cs_regex = re.compile(
-    r'\b(cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia)\b',
->>>>>>> 43eca185ff679b4261273b7c5de71a1990fd6383
     re.IGNORECASE
 )
 
