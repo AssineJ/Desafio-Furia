@@ -5,6 +5,7 @@ import os
 import requests
 import re
 import logging
+import json
 
 # Configuração básica de logging
 logging.basicConfig(level=logging.DEBUG)
@@ -54,6 +55,10 @@ Exemplo correto: "Counter-Strike (CS para os íntimos)"
 
 def clean_response(text):
     """Limpa formatações indesejadas da resposta do modelo"""
+    # Verificação de segurança para texto nulo ou não string
+    if not text or not isinstance(text, str):
+        return "Não foi possível gerar uma resposta válida. Tente novamente."
+        
     # Remove texto antes de <|assistant|> se presente
     if "<|assistant|>" in text:
         text = text.split("<|assistant|>")[-1]
@@ -114,13 +119,37 @@ def chat():
             if response.status_code == 200:
                 try:
                     response_json = response.json()
+                    logger.debug(f"Resposta bruta da HF: {str(response_json)[:200]}...")
+                    
+                    # Tratamento melhorado para diferentes formatos de resposta
+                    raw_text = ""
                     if isinstance(response_json, list) and len(response_json) > 0:
-                        raw_text = response_json[0].get('generated_text', '')
-                        clean_text = clean_response(raw_text)
-                        return jsonify({"response": clean_text})
-                    else:
-                        logger.error(f"Formato de resposta inesperado: {response_json}")
-                        return jsonify({"response": "Formato de resposta inesperado do modelo. Tente novamente. 🔄"}), 500
+                        if isinstance(response_json[0], dict):
+                            raw_text = response_json[0].get('generated_text', '')
+                        elif isinstance(response_json[0], str):
+                            raw_text = response_json[0]
+                    elif isinstance(response_json, dict):
+                        raw_text = response_json.get('generated_text', '')
+                    
+                    if not raw_text:
+                        logger.warning("Não foi possível extrair texto da resposta")
+                        return jsonify({"response": "Não consegui gerar uma resposta. Por favor, tente novamente. 🤔"}), 500
+                        
+                    clean_text = clean_response(raw_text)
+                    return jsonify({"response": clean_text})
+                    
+                except json.JSONDecodeError as e:
+                    logger.error(f"Erro ao decodificar JSON: {str(e)}")
+                    # Tenta usar o texto bruto da resposta se não for JSON válido
+                    try:
+                        raw_text = response.text
+                        if raw_text:
+                            clean_text = clean_response(raw_text)
+                            return jsonify({"response": clean_text})
+                    except Exception:
+                        pass
+                    return jsonify({"response": "Erro ao processar resposta do modelo. Formato inválido. 📝"}), 500
+                    
                 except Exception as e:
                     logger.error(f"Erro ao processar JSON da resposta: {str(e)}")
                     return jsonify({"response": f"Erro ao processar resposta do modelo: {str(e)}. 📝"}), 500
@@ -128,13 +157,22 @@ def chat():
                 error_msg = f"Erro na API Hugging Face: Código {response.status_code}"
                 logger.error(error_msg)
                 
+                # Tenta ler detalhes do erro
+                error_details = ""
+                try:
+                    error_data = response.json()
+                    if isinstance(error_data, dict) and "error" in error_data:
+                        error_details = f": {error_data['error']}"
+                except:
+                    pass
+                
                 # Tratamento específico para erros comuns
                 if response.status_code == 401:
                     return jsonify({"response": "🔑 Chave API inválida ou sem permissões! Verifique se sua chave possui acesso Read."}), 401
                 elif response.status_code == 503:
                     return jsonify({"response": "⏳ O modelo está sendo carregado ou está sobrecarregado. Tente novamente em alguns segundos."}), 503
                 else:
-                    return jsonify({"response": f"Erro no servidor: {error_msg}. Tente novamente. 🛠️"}), response.status_code
+                    return jsonify({"response": f"Erro no servidor{error_details}. Tente novamente. 🛠️"}), response.status_code
         
         except requests.exceptions.Timeout:
             logger.error("Timeout na requisição ao modelo")
