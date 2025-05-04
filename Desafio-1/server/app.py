@@ -1,76 +1,164 @@
-# server/app.py
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import requests
+import re
+import logging
 
-load_dotenv()  # Carrega variáveis do .env
+
+load_dotenv()
+
+logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
+CORS(app, resources={r"/api/*": {"origins": "*", "supports_credentials": True}})
 
-# Configurações da API Hugging Face
+cs_regex = re.compile(
+    r'\b(cs[\s-]?2?|counter[\s-]?strike|mapa|arma|strat|granada|bomba|ct|terrorista|eco|round|clutch|retake|defuse|awp|ak|m4|pistola|skin|patch|fps|objetivo|economia)\b',
+    re.IGNORECASE
+)
+
 HF_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 HF_API_KEY = os.getenv("HF_API_KEY")
+headers = {"Authorization": f"Bearer {HF_API_KEY}"}
 
-headers = {
-    "Authorization": f"Bearer {HF_API_KEY}",
-    "Content-Type": "application/json"
-}
+SYSTEM_PROMPT = """<|system|>
+Você é o SargeBot, assistente especialista em Counter-Strike. Siga estas regras:
+1. Português brasileiro claro e objetivo
+2. Tom militar humorístico (ex: "Recruta!", "Soldado!")
+3. 2-3 parágrafos curtos com quebras de linha
+4. Use **negrito** apenas para termos técnicos importantes
+5. Máximo 2 emojis por resposta
+6. Formatação proibida: markdown, parênteses complexos
+7. Sempre expanda siglas na primeira menção (ex: "CS (Counter-Strike)")
+8. Respostas devem ser informativas e úteis 
 
-# Prompt base para o chatbot (ajustado para CS:GO)
-SYSTEM_PROMPT = """Você é um especialista em Counter Strike (todas as versões) chamado SargeBot. Suas respostas devem:
-- Ser em português
-- Ter tom humorístico mas informativo
-- Focar em dicas, atualizações de patches e cenário competitivo
-- Evitar informações desatualizadas
-- Negar respostas não relacionadas ao CS
-Exemplo: "Soldado, pra plantar a bomba do conhecimento é aqui mesmo! 🔥"
+
+- Use 2-4 emojis relevantes por resposta
+- Exemplos de combinações:
+  Armas: 🔫💣
+  Mapas: 🗺️📍
+  Estratégias: 🧠🎯
+  Vitórias: 🏆✨
+  Erros: 💥🚨
+- Mantenha a profissionalidade militar
+
+Exemplo ruim: "Counter Strike (*CS** pra os íntimos)"
+Exemplo correto: "Counter-Strike (CS para os íntimos)"
+</s>
 """
 
+def clean_response(text: str) -> str:
+    replacements = {
+        "**": "",       
+        "*": "",       
+        "(/": "(",      
+        "*)": ")",      
+        " ,": ",",      
+        " .": "."       
+    }
+    for old, new in replacements.items():
+        text = text.replace(old, new)
+    return text.strip()
+
 def generate_response(user_input: str) -> str:
-    prompt = f"[INST] {SYSTEM_PROMPT}\n\nUsuário: {user_input} [/INST]"
-    
     try:
+        full_prompt = f"{SYSTEM_PROMPT}<|user|>\n{user_input}</s>\n<|assistant|>\n"
+        
         response = requests.post(
             HF_API_URL,
             headers=headers,
-            json={"inputs": prompt, "parameters": {"max_new_tokens": 150}}
+            json={
+                "inputs": full_prompt,
+                "parameters": {
+                    "max_new_tokens": 600,
+                    "temperature": 0.7,
+                    "top_p": 0.95,
+                    "repetition_penalty": 1.2,
+                    "do_sample": True
+                }
+            },
+            timeout=25
         )
-        return response.json()[0]['generated_text'].split("[/INST]")[-1].strip()
-    except Exception as e:
-        return "Erro no quartel general! Tente novamente. 💥"
 
+        if response.status_code == 200:
+            raw_text = response.json()[0]['generated_text']
+            response_text = raw_text.split("<|assistant|>")[-1]
+            return clean_response(response_text)
+            
+        return "Erro no QG! Tente novamente mais tarde. 🔧"
+
+    except requests.exceptions.Timeout:
+        return "Tempo esgotado! O servidor demorou muito para responder. ⏳"
+    except Exception as e:
+        app.logger.error(f"Erro crítico: {str(e)}")
+        return "Falha geral no sistema! Recarregue o navegador. 💥"
+    
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    user_message = request.json.get('message', '').strip()
-    
-    # Filtro básico para temas não relacionados
-    cs_keywords = [
-        'cs', 'counter strike', 'mapa', 'arma', 'granada', 'bomba', 'ct', 'terrorista',
-        'dust2', 'inferno', 'mirage', 'cache', 'overpass', 'strat', 'dica', 'competitivo',
-        'patch', 'atualizaç', 'skins', 'treino', 'prática', 'esquadrão', 'round', 'eco',
-        'headshot', 'awp', 'ak-47', 'm4a1', 'smoke', 'flashbang', 'molotov', 'clutch',
-        'ace', 'spray', 'recoil', 'plantar', 'defusar', 'economia', 'frag', 'ranked',
-        'fps', 'servidor', 'lan', 'hltv', 'major', 'boost', 'pixel', 'crosshair', 'demo',
-        'squad', 'team', 'tática', 'estratégia', 'mapa', 'posição', 'jogador', 'skin',
-        'clan', 'esports', 'competição', 'torneio', 'ranking', 'clutch', 'eco round',
-        'force buy', 'save round', 'pistol round', 'anti-eco', 'anti-force', 'buy round',
-        'force', 'save', 'buy', 'rush', 'split', 'exec', 'fake', 'retake',
-        # Mapas do Counter Strike
-        'ancient', 'anubis', 'aztec', 'cobblestone', 'train', 'nuke', 'vertigo', 'office',
-        'agency', 'italy', 'assault', 'militia', 'shortdust', 'shortnuke', 'lake', 'canals',
-        'dust', 'tuscan', 'seaside', 'santorini', 'abbey', 'biome', 'subzero', 'chlorine',
-        'grind', 'mocha', 'blagai', 'basalt', 'pitstop', 'calavera', 'depot', 'anarchy','dust2',
-        'inferno', 'mirage', 'cache', 'overpass', 'train', 'nuke', 'vertigo', 'ancient',
-        'anubis', 'aztec', 'cobblestone', 'office', 'agency', 'italy', 'assault', 'militia',
-    ]
-    
-    # Verifica se a mensagem contém palavras-chave relacionadas ao CS
-    if not any(keyword in user_message.lower() for keyword in cs_keywords):
-        return jsonify({"response": "Soldado, essa não é uma missão do CS! Tente algo mais relacionado ao jogo. 🚫"})
-    
-    bot_response = generate_response(user_message)
-    return jsonify({"response": bot_response})
+    try:
+        user_key = request.headers.get('X-API-Key')
+        data = request.get_json()
+        
+        # Validação dupla da chave
+        if not user_key or not user_key.startswith('hf_'):
+            return jsonify({"response": "🔒 Chave API inválida!"}), 401
+            
+        # Sua lógica de IA aqui
+        return jsonify({"response": "Resposta de teste do servidor!"})
+        
+    except Exception as e:
+        return jsonify({"response": f"Erro: {str(e)}"}), 500
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
+@app.route('/api/validate-key', methods=['POST'])
+def validate_key():
+    try:
+        app.logger.debug("Recebendo requisição de validação de chave")
+        data = request.get_json()
+        
+        if not data or 'apiKey' not in data:
+            app.logger.error("Formato JSON inválido")
+            return jsonify({"valid": False, "error": "Formato inválido"}), 400
+            
+        user_key = data['apiKey']
+        app.logger.debug(f"Chave recebida: {user_key[:6]}...")  # Log parcial por segurança
+
+        # Primeira validação: formato básico
+        if not user_key.startswith('hf_'):
+            app.logger.error("Formato de chave inválido")
+            return jsonify({"valid": False, "error": "Formato inválido (deve começar com hf_)"}), 400
+
+        # Segunda validação: endpoint de status
+        try:
+            response = requests.get(
+                'https://huggingface.co/api/whoami-v2',
+                headers={'Authorization': f'Bearer {user_key}'},
+                timeout=30
+            )
+            app.logger.debug(f"Status da HF API: {response.status_code}")
+            
+            if response.status_code == 200:
+                return jsonify({"valid": True})
+                
+            return jsonify({
+                "valid": False,
+                "error": f"Erro de autenticação (HTTP {response.status_code})"
+            }), 401
+
+        except requests.exceptions.Timeout:
+            app.logger.error("Timeout na conexão com Hugging Face")
+            return jsonify({"valid": False, "error": "Timeout - Servidor não respondeu"}), 504
+            
+        except Exception as e:
+            app.logger.error(f"Erro na requisição: {str(e)}")
+            return jsonify({"valid": False, "error": str(e)}), 500
+
+    except Exception as e:
+        app.logger.critical(f"Erro crítico: {str(e)}")
+        return jsonify({"valid": False, "error": "Erro interno do servidor"}), 500
+
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "online", "version": "1.2.0"}), 200
