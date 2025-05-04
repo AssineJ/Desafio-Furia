@@ -1,8 +1,8 @@
 :root {
-    --cs-orange: #FFA500;
+    --cs-white: #FFFFFF;
     --cs-dark: #121212;
     --cs-gray: #2A2A2A;
-    --cs-blue: #4B9AE3;
+    --cs-light-gray: #CCCCCC;
     --cs-error: #ff4444;
 }
 
@@ -14,9 +14,26 @@
 }
 
 body {
-    background: var(--cs-dark);
+    background: var(--cs-dark) url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIHZpZXdCb3g9IjAgMCAxMDAwIDEwMDAiPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InRyYW5zcGFyZW50Ii8+PC9zdmc+') no-repeat center center fixed;
+    background-size: cover;
     color: white;
     min-height: 100vh;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://cdn.discordapp.com/attachments/1214971558976458893/1214971722487799940/black-panther-logo-wallpaper.webp?ex=65fa5bf7&is=65e7e6f7&hm=2b72f2fd53944b20ef5a3aa50da8d9b3edc99c3a72fa5d47fca48b4b9e4cc9e7&');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.2;
+    z-index: -1;
 }
 
 .container {
@@ -33,17 +50,17 @@ body {
 }
 
 .auth-box {
-    background: rgba(25, 25, 25, 0.95);
-    border: 2px solid var(--cs-orange);
+    background: rgba(18, 18, 18, 0.95);
+    border: 2px solid var(--cs-white);
     border-radius: 10px;
     padding: 30px;
     max-width: 500px;
     width: 100%;
-    box-shadow: 0 0 20px rgba(255, 165, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
 }
 
 .auth-box h2 {
-    color: var(--cs-orange);
+    color: var(--cs-white);
     margin-bottom: 20px;
     text-align: center;
 }
@@ -60,7 +77,7 @@ body {
 }
 
 .auth-content a {
-    color: var(--cs-orange);
+    color: var(--cs-light-gray);
     text-decoration: none;
 }
 
@@ -73,7 +90,7 @@ body {
 #apiKeyInput {
     padding: 12px;
     background: var(--cs-gray);
-    border: 1px solid var(--cs-orange);
+    border: 1px solid var(--cs-white);
     border-radius: 6px;
     color: white;
     font-size: 16px;
@@ -81,7 +98,7 @@ body {
 
 button {
     padding: 12px;
-    background: var(--cs-orange);
+    background: var(--cs-white);
     border: none;
     border-radius: 6px;
     color: var(--cs-dark);
@@ -91,7 +108,7 @@ button {
 }
 
 button:hover {
-    background: #FFB733;
+    background: var(--cs-light-gray);
 }
 
 .error {
@@ -120,22 +137,22 @@ button:hover {
 }
 
 .header h1 {
-    color: var(--cs-orange);
+    color: var(--cs-white);
     font-size: 2.5em;
     margin-bottom: 10px;
 }
 
 .reset-btn {
     background: transparent;
-    border: 1px solid var(--cs-orange);
-    color: var(--cs-orange);
+    border: 1px solid var(--cs-white);
+    color: var(--cs-white);
     margin-top: 15px;
     padding: 8px 20px;
 }
 
 .chat-box {
     background: rgba(18, 18, 18, 0.9);
-    border: 2px solid var(--cs-orange);
+    border: 2px solid var(--cs-white);
     border-radius: 10px;
     padding: 20px;
 }
@@ -153,14 +170,14 @@ button:hover {
     padding: 12px;
     margin: 10px 0;
     border-radius: 6px;
-    background: rgba(255, 165, 0, 0.05);
-    border-left: 3px solid var(--cs-orange);
+    background: rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--cs-white);
     line-height: 1.5;
 }
 
 .user-message {
-    background: rgba(75, 154, 227, 0.05);
-    border-left: 3px solid var(--cs-blue);
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 3px solid var(--cs-light-gray);
 }
 
 .message.error {
@@ -185,7 +202,7 @@ button:hover {
     flex: 1;
     padding: 12px;
     background: var(--cs-gray);
-    border: 1px solid var(--cs-orange);
+    border: 1px solid var(--cs-white);
     color: white;
     border-radius: 6px;
 }
@@ -219,7 +236,7 @@ small {
 }
 
 .loading {
-    color: var(--cs-orange);
+    color: var(--cs-white);
     text-align: center;
     padding: 10px;
     animation: pulse 1.5s infinite;
@@ -232,7 +249,7 @@ small {
 }
 
 code {
-    background: rgba(255, 165, 0, 0.1);
+    background: rgba(255, 255, 255, 0.1);
     padding: 2px 5px;
     border-radius: 3px;
     font-family: monospace;
