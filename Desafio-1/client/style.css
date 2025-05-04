@@ -28,7 +28,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('https://cdn.discordapp.com/attachments/1214971558976458893/1214971722487799940/black-panther-logo-wallpaper.webp?ex=65fa5bf7&is=65e7e6f7&hm=2b72f2fd53944b20ef5a3aa50da8d9b3edc99c3a72fa5d47fca48b4b9e4cc9e7&');
+    background-image: url('./assets/background.jpg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

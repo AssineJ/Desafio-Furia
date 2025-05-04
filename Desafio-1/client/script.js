@@ -5,7 +5,7 @@ function showChatInterface() {
     const messagesDiv = document.getElementById('chatMessages');
     messagesDiv.innerHTML = `
         <div class="message">
-            🐯 Assistente: Olá, fã da FURIA! Bem-vindo ao assistente não-oficial da FURIA Esports! Como posso ajudar você hoje? Quer saber sobre os jogadores, conquistas, estatísticas ou próximos jogos da nossa equipe de CS? 🖤💛
+            🐯 Assistente: Faaaala Furioso(a)! Bem-vindo(a) ao assistente não-oficial da FURIA Esports! Como posso ajudar você hoje? Quer saber sobre os jogadores, conquistas, estatísticas ou próximos jogos da nossa equipe de CS? 🖤🤍
         </div>
     `;
 }
