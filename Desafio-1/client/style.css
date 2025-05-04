@@ -3,6 +3,7 @@
     --cs-dark: #121212;
     --cs-gray: #2A2A2A;
     --cs-blue: #4B9AE3;
+    --cs-error: #ff4444;
 }
 
 * {
@@ -26,7 +27,7 @@ body {
 
 /* Tela de autenticação */
 .auth-container {
-    display: flex;
+    display: none;
     justify-content: center;
     padding: 50px 20px;
 }
@@ -94,7 +95,7 @@ button:hover {
 }
 
 .error {
-    color: #ff4444;
+    color: var(--cs-error);
     text-align: center;
 }
 
@@ -106,7 +107,7 @@ button:hover {
 
 /* Interface do Chat */
 .chat-container {
-    display: none;
+    display: none; /* Inicialmente escondida */
 }
 
 .chat-container.visible {
@@ -154,11 +155,25 @@ button:hover {
     border-radius: 6px;
     background: rgba(255, 165, 0, 0.05);
     border-left: 3px solid var(--cs-orange);
+    line-height: 1.5;
 }
 
 .user-message {
     background: rgba(75, 154, 227, 0.05);
     border-left: 3px solid var(--cs-blue);
+}
+
+.message.error {
+    background: rgba(255, 68, 68, 0.05);
+    border-left: 3px solid var(--cs-error);
+}
+
+.message.typing {
+    color: #aaa;
+    font-style: italic;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid #666;
+    animation: pulse 1.5s infinite;
 }
 
 .chat-input {
@@ -189,7 +204,7 @@ button:hover {
     background: rgba(255, 68, 68, 0.1);
     padding: 15px;
     border-radius: 6px;
-    border: 1px solid #ff4444;
+    border: 1px solid var(--cs-error);
     margin-top: 10px;
 }
 
@@ -203,21 +218,8 @@ small {
     color: #aaa;
 }
 
-.error-box a {
-    color: #ff8888;
-    text-decoration: underline;
-}
-
-.error-box ul {
-    margin: 10px 0 0 25px;
-}
-
-.error-box li {
-    list-style: disc;
-}
-
 .loading {
-    color: #FFA500;
+    color: var(--cs-orange);
     text-align: center;
     padding: 10px;
     animation: pulse 1.5s infinite;
@@ -234,4 +236,9 @@ code {
     padding: 2px 5px;
     border-radius: 3px;
     font-family: monospace;
+}
+
+/* Classes auxiliares */
+.hidden {
+    display: none !important;
 }
