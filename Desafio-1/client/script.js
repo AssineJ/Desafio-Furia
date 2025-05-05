@@ -81,38 +81,29 @@ async function validateAPIKey(key) {
     }
 }
 
-// Função para formatar texto com tópicos quando há traços
 function formatWithTopics(text) {
-    // Verifica se o texto contém linhas que começam com traço (-)
     if (text.includes('- ')) {
-        // Divide o texto em linhas
         const lines = text.split('\n');
         let result = '';
         let inTopicsList = false;
         
         for (let line of lines) {
             const trimmedLine = line.trim();
-            // Se a linha começa com traço, formata como item de lista
             if (trimmedLine.startsWith('- ')) {
                 if (!inTopicsList) {
-                    // Inicia uma lista se não estiver em uma
                     inTopicsList = true;
                     result += '<ul class="topics-list">\n';
                 }
-                // Adiciona o item formatado como um li
                 result += `<li>${trimmedLine.substring(2)}</li>\n`;
             } else {
-                // Se não começa com traço, mas estava em uma lista, fecha a lista
                 if (inTopicsList) {
                     result += '</ul>\n';
                     inTopicsList = false;
                 }
-                // Adiciona a linha normal
                 result += line + '\n';
             }
         }
         
-        // Fecha a lista se terminou o texto ainda dentro de uma lista
         if (inTopicsList) {
             result += '</ul>';
         }
@@ -120,7 +111,6 @@ function formatWithTopics(text) {
         return result;
     }
     
-    // Retorna o texto original se não encontrou padrão de tópicos
     return text;
 }
 
@@ -202,7 +192,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(data.response || `Erro HTTP ${response.status}`);
             }
             
-            // Formata a resposta para exibir tópicos quando necessário
             const formattedResponse = formatWithTopics(data.response || "Desculpe, não consegui processar sua mensagem. Tente novamente.");
             
             messagesDiv.innerHTML += `
