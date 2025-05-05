@@ -122,9 +122,8 @@ button:hover {
     text-align: center;
 }
 
-/* Interface do Chat */
 .chat-container {
-    display: none; /* Inicialmente escondida */
+    display: none; 
 }
 
 .chat-container.visible {
@@ -255,7 +254,6 @@ code {
     font-family: monospace;
 }
 
-/* Classes auxiliares */
 .hidden {
     display: none !important;
 
@@ -281,7 +279,6 @@ code {
         font-size: 1.2em;
     }
     
-    /* Ajuste para que o espaçamento seja mais adequado */
     .message ul.topics-list {
         margin-top: 10px;
         margin-bottom: 10px;
