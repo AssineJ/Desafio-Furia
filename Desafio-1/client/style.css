@@ -258,4 +258,33 @@ code {
 /* Classes auxiliares */
 .hidden {
     display: none !important;
-}
+
+    .topics-list {
+        list-style-type: none;
+        padding-left: 10px;
+        margin: 10px 0;
+    }
+    
+    .topics-list li {
+        position: relative;
+        padding-left: 20px;
+        margin-bottom: 8px;
+        line-height: 1.4;
+    }
+    
+    .topics-list li::before {
+        content: "•";
+        position: absolute;
+        left: 0;
+        color: var(--cs-white);
+        font-weight: bold;
+        font-size: 1.2em;
+    }
+    
+    /* Ajuste para que o espaçamento seja mais adequado */
+    .message ul.topics-list {
+        margin-top: 10px;
+        margin-bottom: 10px;
+
+    }
+    }
