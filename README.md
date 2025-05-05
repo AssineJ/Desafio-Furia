@@ -14,7 +14,7 @@ Um assistente virtual para o **E-sport de CS da FURIA** usando inteligência art
 >- Navegador web moderno (Chrome, Firefox, Edge, Safari)
 >- Sistemas compatíveis: Windows, macOS e Linux
 
-### 🚀 Instalando FURIA CS Assistente
+###  Instalando FURIA CS Assistente
 
 Para instalar o **FURIA CS Assistente**, siga estas etapas:
 
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 O frontend é composto de arquivos estáticos HTML/CSS/JS que não precisam de instalação adicional, apenas do servidor rodando.
 
-### ☕ Usando FURIA CS Assistente
+###  Usando FURIA CS Assistente
 
 Para iniciar o assistente, siga estas etapas:
 
@@ -48,13 +48,13 @@ python app.py
 - Crie uma conta gratuita (se ainda não tiver uma)
 - Gere um token com permissão **Read**
 - Cole a chave no formulário de login do assistente
-4. Comece a fazer perguntas sobre Counter-Strike!
+4. Comece a fazer perguntas sobre o Time e sobre o jogo Counter-Strike!
 
 ### Exemplos de perguntas:
 
-- "Quais são as melhores posições para AWP no mapa Dust 2?"
-- "Como funciona a economia do CS?"
-- "Quais são as melhores granadas para retake no Mirage?"
+- "Quais são os atuais jogadores do time de CS da FURIA?"
+- "Como funciona o CS?"
+- "Quais são as conquistas da FURIA no CS?"
 - "Dicas para melhorar minha precisão com rifles"
 
 ### 🔧 Resolução de problemas
