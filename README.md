@@ -20,7 +20,7 @@ Para instalar o **FURIA CS Assistente**, siga estas etapas:
 
 1. Clone este repositório:
 ```
-git clone https://github.com/AssineJ/csgo-assistente.git
+git clone https://github.com/AssineJ/Desafio-Furia.git
 cd csgo-assistente
 ```
 2.Instale as dependências Python:
