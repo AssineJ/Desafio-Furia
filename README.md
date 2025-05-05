@@ -55,7 +55,7 @@ python app.py
 - "Quais são os atuais jogadores do time de CS da FURIA?"
 - "Como funciona o CS?"
 - "Quais são as conquistas da FURIA no CS?"
-- "Dicas para melhorar minha precisão com rifles"
+- "Dicas para melhorar minha precisão com AWP"
 
 ### 🔧 Resolução de problemas
 > [!WARNING]
