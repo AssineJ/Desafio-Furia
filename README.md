@@ -1,8 +1,8 @@
 # Desafio-Furia
 
-### O que é o CS Assistente?
+### O que é o FURIA CS Assistente?
 
-Um assistente virtual para **Counter-Strike** usando inteligência artificial que responde suas perguntas sobre o jogo em português brasileiro.
+Um assistente virtual para o **E-sport de CS da FURIA** usando inteligência artificial que responde suas perguntas sobre o time e o jogo em português brasileiro.
 
 ### 💻 Pré-requisitos
 
@@ -14,9 +14,9 @@ Um assistente virtual para **Counter-Strike** usando inteligência artificial qu
 >- Navegador web moderno (Chrome, Firefox, Edge, Safari)
 >- Sistemas compatíveis: Windows, macOS e Linux
 
-### 🚀 Instalando CS Assistente
+### 🚀 Instalando FURIA CS Assistente
 
-Para instalar o **CS Assistente**, siga estas etapas:
+Para instalar o **FURIA CS Assistente**, siga estas etapas:
 
 1. Clone este repositório:
 ```
@@ -30,7 +30,7 @@ pip install -r requirements.txt
 
 O frontend é composto de arquivos estáticos HTML/CSS/JS que não precisam de instalação adicional, apenas do servidor rodando.
 
-### ☕ Usando CS Assistente
+### ☕ Usando FURIA CS Assistente
 
 Para iniciar o assistente, siga estas etapas:
 
